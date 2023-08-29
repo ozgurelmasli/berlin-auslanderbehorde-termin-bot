@@ -26,7 +26,9 @@ class WebDriver:
         # some stuff that prevents us from being locked out
         options = webdriver.ChromeOptions() 
         options.add_argument('--disable-blink-features=AutomationControlled')
-        self._driver = webdriver.Chrome(options=options)
+        options.binary_location = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+        chrome_driver_binary = '/Users/ozgurelmasli/Desktop/IT/unrelated/berlin-auslanderbehorde-termin-bot/chromedriver'
+        self._driver = webdriver.Chrome(chrome_driver_binary, options=options)
         self._driver.implicitly_wait(self._implicit_wait_time) # seconds
         self._driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         self._driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
@@ -62,30 +64,31 @@ class BerlinBot:
         logging.info("Fill out form")
         # select china
         s = Select(driver.find_element(By.ID, 'xi-sel-400'))
-        s.select_by_visible_text("China")
+        s.select_by_visible_text("Türkei")
         # eine person
         s = Select(driver.find_element(By.ID, 'xi-sel-422'))
         s.select_by_visible_text("eine Person")
         # no family
         s = Select(driver.find_element(By.ID, 'xi-sel-427' ))
-        s.select_by_visible_text("nein")
-        time.sleep(5)
-
-        # extend stay
-        driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[2]/label/p').click()
+        s.select_by_visible_text("ja")
+        time.sleep(1)
+        # Do you live in berlin with your family member -> Yes 
+        s = Select(driver.find_element(By.ID, 'xi-sel-428' ))
+        s.select_by_visible_text("Türkei")
         time.sleep(2)
-
-        # click on study group
-        driver.find_element(By.XPATH, '//*[@id="inner-479-0-2"]/div/div[1]/label/p').click()
+        # residence title
+        driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[1]/label/p').click()
         time.sleep(2)
-
-        # b/c of stufy
-        driver.find_element(By.XPATH, '//*[@id="inner-479-0-2"]/div/div[2]/div/div[5]/label').click()
-        time.sleep(4)
-
+        # family reasons
+        driver.find_element(By.XPATH, '//*[@id="inner-163-0-1"]/div/div[5]/label/p').click()
+        time.sleep(2)
+        # eu blaue karte 
+        driver.find_element(By.ID, 'SERVICEWAHL_DE163-0-1-4-328188').click()
+        #driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[7]/div[1]/div[4]/div[1]/div[3]/label/p').click()
+        time.sleep(10)
         # submit form
         driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
-        time.sleep(10)
+        time.sleep(20)
     
     def _success(self):
         logging.info("!!!SUCCESS - do not close the window!!!!")
@@ -94,7 +97,6 @@ class BerlinBot:
             time.sleep(15)
         
         # todo play something and block the browser
-
 
     def run_once(self):
         with WebDriver() as driver:
